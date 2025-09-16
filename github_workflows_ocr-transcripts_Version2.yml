@@ -1,0 +1,73 @@
+name: OCR PNGs to TXT
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - "**/*.png"
+      - "**/*.PNG"
+
+permissions:
+  contents: write
+
+jobs:
+  ocr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Tesseract
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
+
+      - name: Generate transcripts
+        id: ocr
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed=0
+
+          # Find all PNGs recursively, case-insensitive
+          mapfile -d '' pngs < <(find . -type f \( -iname '*.png' \) -print0)
+
+          if [ ${#pngs[@]} -eq 0 ]; then
+            echo "No PNG files found."
+          else
+            for img in "${pngs[@]}"; do
+              base="${img%.*}"
+              out="${base}.txt"
+              echo "OCR: $img -> $out"
+              # Run OCR; suppress tesseract console output but keep exit status
+              if tesseract "$img" "$base" -l eng --psm 6 >/dev/null 2>&1; then
+                :
+              else
+                echo "Warning: Tesseract returned a non-zero status for $img (continuing)."
+              fi
+
+              if [ -f "$out" ]; then
+                # Normalize trailing spaces to reduce noisy diffs
+                sed -i 's/[[:space:]]\+$//' "$out"
+              fi
+            done
+          fi
+
+          # Stage only .txt files if they changed
+          git add -A "*.txt" || true
+          if git diff --cached --quiet; then
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push transcripts
+        if: steps.ocr.outputs.changed == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: add/update OCR transcripts [skip ci]"
+          git push
