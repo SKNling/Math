@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Problems Practice - Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Math Problems Practice - Demo</h1>
+            <p>Demo with sample math problems loaded</p>
+        </header>
+
+        <main>
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <h2>Upload Problem Photos</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <p>Drag and drop photos here or click to browse</p>
+                        <input type="file" id="fileInput" accept="image/*" multiple>
+                        <button type="button" id="browseBtn">Browse Files</button>
+                    </div>
+                </div>
+                <div class="uploaded-files" id="uploadedFiles"></div>
+            </section>
+
+            <!-- Problems Display Section -->
+            <section class="problems-section">
+                <h2>Your Math Problems</h2>
+                <div class="problems-grid" id="problemsGrid">
+                    <!-- Sample problems will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Practice Mode Section -->
+            <section class="practice-section" id="practiceSection">
+                <h2>Practice Mode</h2>
+                <div class="practice-controls">
+                    <button id="startPracticeBtn">Start Practice Session</button>
+                    <button id="randomProblemBtn">Random Problem</button>
+                    <button id="clearAllBtn" class="btn-danger">Clear All Problems</button>
+                    <button id="loadDemoBtn" class="btn btn-secondary">Load Demo Problems</button>
+                </div>
+                <div class="practice-stats" id="practiceStats">
+                    <div class="stat">
+                        <span class="stat-label">Total Problems:</span>
+                        <span class="stat-value" id="totalProblems">3</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Current Problem:</span>
+                        <span class="stat-value" id="currentIndex">-</span>
+                    </div>
+                </div>
+                <div class="current-problem" id="currentProblem">
+                    <p>Click "Start Practice Session" to begin or "Load Demo Problems" to see sample math problems!</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Auto-load demo data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for the app to initialize
+            setTimeout(() => {
+                if (window.app) {
+                    window.app.loadDemoData();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
